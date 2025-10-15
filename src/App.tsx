@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
 import { Plus, Settings, BarChart3 } from 'lucide-react'
 import { useProducts } from './hooks/useProducts'

@@ -9,7 +9,10 @@ interface StatsCardsProps {
 export const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
   const totalProducts = products.length
   const wifiProducts = products.filter(p => p.has_wifi).length
-  const totalValue = products.reduce((sum, product) => sum + product.price, 0)
+  const totalValue = products.reduce((sum: number, product) => {
+    const price = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price
+    return sum + price
+  }, 0)
   const avgPrice = totalProducts > 0 ? totalValue / totalProducts : 0
   const brands = [...new Set(products.map(p => p.brand))].length
   

@@ -1,5 +1,5 @@
 import React from 'react'
-import { X, Edit, Trash2, Image, Wifi, Package, DollarSign, Calendar, Tag } from 'lucide-react'
+import { X, Edit, Trash2, Image, Wifi, Package, Calendar, Tag } from 'lucide-react'
 import { Product } from '../types/product'
 import clsx from 'clsx'
 
@@ -117,7 +117,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                         className="w-full h-64 object-cover rounded-lg border border-gray-200"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none'
-                          e.currentTarget.nextElementSibling.style.display = 'block'
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                          if (nextElement) {
+                            nextElement.style.display = 'block'
+                          }
                         }}
                       />
                       <div className="hidden w-full h-64 bg-gray-200 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500">
@@ -141,7 +144,10 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                             className="w-full h-32 object-cover rounded-lg border border-gray-200"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none'
-                              e.currentTarget.nextElementSibling.style.display = 'block'
+                              const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                              if (nextElement) {
+                                nextElement.style.display = 'block'
+                              }
                             }}
                           />
                           <div className="hidden w-full h-32 bg-gray-200 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 text-sm">

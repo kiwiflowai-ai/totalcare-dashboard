@@ -53,7 +53,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({
           uploadedUrl = await uploadImage(file)
           if (uploadedUrl) {
             setUseFallback(true)
-            toast.info('Using Supabase storage as fallback')
+            toast.success('Using Supabase storage as fallback')
           }
         }
       }

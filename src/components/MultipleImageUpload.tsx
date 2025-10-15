@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react'
+import React, { useRef, useState } from 'react'
 import { X, Loader2, Plus } from 'lucide-react'
 import { useImageUploadFallback } from '../hooks/useImageUploadFallback'
 import clsx from 'clsx'

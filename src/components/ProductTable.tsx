@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Edit, Trash2, Eye, MoreVertical, Search, Filter, Image, Grid3X3 } from 'lucide-react'
+import { Trash2, Eye, Search, Filter, Image, Grid3X3, X } from 'lucide-react'
 import { Product } from '../types/product'
 import { ProductDetailModal } from './ProductDetailModal'
 import clsx from 'clsx'

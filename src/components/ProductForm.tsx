@@ -65,8 +65,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     reset,
     setValue,
     formState: { errors },
-    watch
-  } = useForm<CreateProductData>({
+  } = useForm<CreateProductData | UpdateProductData>({
     defaultValues: {
       name: '',
       brand: '',
@@ -74,11 +73,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       model: '',
       price: 0,
       price_numeric: 0,
-      cooling_capacity: 0,
-      heating_capacity: 0,
+      cooling_capacity: '',
+      heating_capacity: '',
       has_wifi: false,
       series: '',
-      image: null,
+      image: '',
       product_images: [],
       promotions: []
     }
@@ -90,7 +89,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
   }, [productImages, setValue])
 
   useEffect(() => {
-    setValue('image', imageUrl)
+    setValue('image', imageUrl || '')
   }, [imageUrl, setValue])
 
   useEffect(() => {
@@ -101,13 +100,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         brand: product.brand,
         description: product.description,
         model: product.model,
-        price: product.price,
+        price: typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price,
         price_numeric: product.price_numeric || 0,
         cooling_capacity: product.cooling_capacity || '',
         heating_capacity: product.heating_capacity || '',
         has_wifi: product.has_wifi || false,
         series: product.series || '',
-        image: product.image || null,
+        image: product.image || '',
         product_images: product.product_images || [],
         promotions: product.promotions || []
       })
@@ -125,7 +124,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         heating_capacity: '',
         has_wifi: false,
         series: '',
-        image: null,
+        image: '',
         product_images: [],
         promotions: []
       })
@@ -134,12 +133,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [product, reset])
 
-  const handleFormSubmit = async (data: CreateProductData) => {
+  const handleFormSubmit = async (data: CreateProductData | UpdateProductData) => {
     try {
       setIsSubmitting(true)
       
       // Ensure price has $ sign
-      let formattedPrice = data.price.toString();
+      const priceValue = data.price || 0
+      let formattedPrice = priceValue.toString();
       if (!formattedPrice.startsWith('$')) {
         formattedPrice = `$${formattedPrice}`;
       }
@@ -148,19 +148,50 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       const processedData = {
         ...data,
         price: formattedPrice, // Ensure $ sign is included
-        price_numeric: Math.round(data.price_numeric || data.price), // Convert to integer
+        price_numeric: Math.round(data.price_numeric || priceValue), // Convert to integer
         cooling_capacity: data.cooling_capacity || '',
         heating_capacity: data.heating_capacity || '',
-        image: data.image || null,
-        product_images: Array.isArray(data.product_images) && data.product_images.length > 0 ? data.product_images : null,
-        promotions: data.promotions || null
+        image: data.image || '',
+        product_images: Array.isArray(data.product_images) && data.product_images.length > 0 ? data.product_images : [],
+        promotions: data.promotions || []
       }
       
       
       if (isEdit && product) {
-        await onSubmit({ ...processedData, id: product.id })
+        const updateData: UpdateProductData = {
+          id: product.id,
+          name: processedData.name || '',
+          brand: processedData.brand || '',
+          description: processedData.description || '',
+          model: processedData.model || '',
+          price: priceValue,
+          price_numeric: processedData.price_numeric,
+          cooling_capacity: processedData.cooling_capacity,
+          heating_capacity: processedData.heating_capacity,
+          has_wifi: processedData.has_wifi,
+          series: processedData.series,
+          image: processedData.image,
+          product_images: processedData.product_images,
+          promotions: processedData.promotions
+        }
+        await onSubmit(updateData)
       } else {
-        await onSubmit(processedData)
+        const createData: CreateProductData = {
+          name: processedData.name || '',
+          brand: processedData.brand || '',
+          description: processedData.description || '',
+          model: processedData.model || '',
+          price: priceValue,
+          price_numeric: processedData.price_numeric,
+          cooling_capacity: processedData.cooling_capacity,
+          heating_capacity: processedData.heating_capacity,
+          has_wifi: processedData.has_wifi,
+          series: processedData.series,
+          image: processedData.image,
+          product_images: processedData.product_images,
+          promotions: processedData.promotions
+        }
+        await onSubmit(createData)
       }
       onClose()
     } catch (error) {
@@ -207,7 +238,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         className="w-full h-32 object-cover rounded-lg border border-blue-300"
                         onError={(e) => {
                           e.currentTarget.style.display = 'none'
-                          e.currentTarget.nextElementSibling.style.display = 'block'
+                          const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                          if (nextElement) {
+                            nextElement.style.display = 'block'
+                          }
                         }}
                       />
                       <div className="hidden w-full h-32 bg-gray-200 rounded-lg border border-blue-300 flex items-center justify-center text-gray-500 text-sm">
@@ -236,7 +270,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                             className="w-full h-16 object-cover rounded border border-blue-300"
                             onError={(e) => {
                               e.currentTarget.style.display = 'none'
-                              e.currentTarget.nextElementSibling.style.display = 'block'
+                              const nextElement = e.currentTarget.nextElementSibling as HTMLElement
+                              if (nextElement) {
+                                nextElement.style.display = 'block'
+                              }
                             }}
                           />
                           <div className="hidden w-full h-16 bg-gray-200 rounded border border-blue-300 flex items-center justify-center text-gray-500 text-xs">
@@ -407,7 +444,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                         type="button"
                         onClick={() => {
                           setImageUrl(null)
-                          setValue('image', null)
+                          setValue('image', '')
                         }}
                         className="text-xs text-red-600 hover:text-red-800 bg-red-50 hover:bg-red-100 px-2 py-1 rounded transition-colors"
                       >
@@ -418,7 +455,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
                 <div className="space-y-3">
                   <ImageUpload
-                    value={imageUrl}
+                    value={imageUrl || ''}
                     onChange={setImageUrl}
                     label=""
                   />

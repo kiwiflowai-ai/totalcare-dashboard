@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
-import { X, Save, Loader2, Plus, Trash2, Upload, Image as ImageIcon } from 'lucide-react'
+import { X, Save, Loader2, Plus, Trash2, Upload } from 'lucide-react'
 import { Product, CreateProductData, UpdateProductData } from '../types/product'
 import { uploadImage } from '../utils/imageUpload'
 import clsx from 'clsx'
@@ -78,7 +78,6 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
   onClose,
   onSubmit,
   loading = false,
-  availableColumns = []
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [customFields, setCustomFields] = useState<Array<{key: string, type: string, value: any}>>([])
@@ -92,8 +91,6 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
     handleSubmit,
     reset,
     formState: { errors },
-    watch,
-    setValue
   } = useForm<CreateProductData>({
     defaultValues: {
       name: '',
@@ -113,7 +110,10 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
 
   useEffect(() => {
     if (product) {
-      const productData = { ...product }
+      const productData = { 
+        ...product,
+        price: typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price
+      }
       reset(productData)
       
       // Extract custom fields that aren't in the default form
@@ -148,7 +148,10 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
   const handleImageUpload = async (file: File): Promise<string> => {
     try {
       const result = await uploadImage(file)
-      return result.url
+      if (!result) {
+        throw new Error('Failed to upload image')
+      }
+      return result
     } catch (error) {
       throw new Error(error instanceof Error ? error.message : 'Failed to upload image')
     }
@@ -182,7 +185,7 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
     setImagePreview(null)
   }
 
-  const handleFormSubmit = async (data: CreateProductData) => {
+  const handleFormSubmit = async (data: CreateProductData | UpdateProductData) => {
     try {
       setIsSubmitting(true)
       setIsUploading(true)
@@ -297,7 +300,9 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
                 ))}
               </select>
               {errors.category && (
-                <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {typeof errors.category.message === 'string' ? errors.category.message : 'This field is required'}
+                </p>
               )}
             </div>
 
@@ -357,7 +362,9 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
                 placeholder="Enter SKU"
               />
               {errors.sku && (
-                <p className="mt-1 text-sm text-red-600">{errors.sku.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {typeof errors.sku.message === 'string' ? errors.sku.message : 'This field is required'}
+                </p>
               )}
             </div>
 
@@ -402,7 +409,9 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
                 placeholder="0"
               />
               {errors.stock_quantity && (
-                <p className="mt-1 text-sm text-red-600">{errors.stock_quantity.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {typeof errors.stock_quantity.message === 'string' ? errors.stock_quantity.message : 'This field is required'}
+                </p>
               )}
             </div>
 
@@ -424,7 +433,9 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
                 placeholder="0"
               />
               {errors.min_stock_level && (
-                <p className="mt-1 text-sm text-red-600">{errors.min_stock_level.message}</p>
+                <p className="mt-1 text-sm text-red-600">
+                  {typeof errors.min_stock_level.message === 'string' ? errors.min_stock_level.message : 'This field is required'}
+                </p>
               )}
             </div>
 
