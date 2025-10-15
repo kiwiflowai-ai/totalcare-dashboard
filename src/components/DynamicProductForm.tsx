@@ -381,7 +381,7 @@ export const DynamicProductForm: React.FC<DynamicProductFormProps> = ({
                   min: { value: 0, message: 'Price must be positive' }
                 })}
                 className={clsx(
-                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500',
+                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
                   errors.price ? 'border-red-500' : 'border-gray-300'
                 )}
                 placeholder="0.00"

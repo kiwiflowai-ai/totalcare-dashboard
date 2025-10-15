@@ -79,7 +79,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       series: '',
       image: '',
       product_images: [],
-      promotions: []
+      promotions: null
     }
   })
 
@@ -126,7 +126,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         series: '',
         image: '',
         product_images: [],
-        promotions: []
+        promotions: null
       })
       setImageUrl(null)
       setProductImages([])
@@ -153,7 +153,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         heating_capacity: data.heating_capacity || '',
         image: data.image || '',
         product_images: Array.isArray(data.product_images) && data.product_images.length > 0 ? data.product_images : [],
-        promotions: data.promotions || []
+        promotions: data.promotions && data.promotions.length > 0 ? data.promotions : null
       }
       
       
@@ -172,7 +172,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           series: processedData.series,
           image: processedData.image,
           product_images: processedData.product_images,
-          promotions: processedData.promotions
+          promotions: processedData.promotions && processedData.promotions.length > 0 ? processedData.promotions : null
         }
         await onSubmit(updateData)
       } else {
@@ -189,7 +189,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           series: processedData.series,
           image: processedData.image,
           product_images: processedData.product_images,
-          promotions: processedData.promotions
+          promotions: processedData.promotions && processedData.promotions.length > 0 ? processedData.promotions : null
         }
         await onSubmit(createData)
       }
@@ -404,7 +404,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   min: { value: 0, message: 'Price must be positive' }
                 })}
                 className={clsx(
-                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
+                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
                   errors.price ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 )}
                 placeholder="0.00"
