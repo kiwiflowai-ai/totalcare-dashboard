@@ -219,4 +219,4 @@ The built files will be in the `dist` directory.
 
 ## License
 
-This project is private and proprietary.
+This project is private and proprietary.# Force rebuild
