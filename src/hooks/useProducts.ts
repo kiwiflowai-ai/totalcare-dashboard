@@ -49,12 +49,23 @@ export const useProducts = () => {
       }
 
 
+      console.log('Attempting to insert product:', productWithId)
+      
       const { data, error } = await supabase
         .from('products')
         .insert([productWithId])
         .select()
 
-      if (error) throw error
+      if (error) {
+        console.error('Supabase insert error:', error)
+        console.error('Error details:', {
+          message: error.message,
+          details: error.details,
+          hint: error.hint,
+          code: error.code
+        })
+        throw error
+      }
 
       if (data && data[0]) {
         // Parse product_images if they're stored as JSON strings
@@ -70,7 +81,9 @@ export const useProducts = () => {
         return processedProduct
       }
     } catch (err) {
+      console.error('Add product error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to add product'
+      console.error('Error message:', errorMessage)
       toast.error(errorMessage)
       throw err
     }

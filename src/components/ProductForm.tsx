@@ -228,6 +228,11 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       onClose()
     } catch (error) {
       console.error('Form submission error:', error)
+      console.error('Error details:', error)
+      if (error instanceof Error) {
+        console.error('Error message:', error.message)
+        console.error('Error stack:', error.stack)
+      }
     } finally {
       setIsSubmitting(false)
     }
