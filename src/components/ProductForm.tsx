@@ -2,6 +2,11 @@ import React, { useState, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
 import { X, Save, Loader2, Image } from 'lucide-react'
 import { Product, CreateProductData, UpdateProductData } from '../types/product'
+
+// Custom form type that allows price as string
+type ProductFormData = Omit<CreateProductData, 'price'> & {
+  price: string
+}
 import { ImageUpload } from './ImageUpload'
 import { MultipleImageUpload } from './MultipleImageUpload'
 import clsx from 'clsx'
@@ -65,7 +70,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     reset,
     setValue,
     formState: { errors },
-  } = useForm<CreateProductData | UpdateProductData>({
+  } = useForm<ProductFormData>({
     defaultValues: {
       name: '',
       brand: '',
@@ -133,7 +138,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     }
   }, [product, reset])
 
-  const handleFormSubmit = async (data: CreateProductData | UpdateProductData) => {
+  const handleFormSubmit = async (data: ProductFormData) => {
     try {
       setIsSubmitting(true)
       
@@ -142,32 +147,29 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       let formattedPrice = data.price || ''
       
       // Try to extract numeric value from the price string
-      if (typeof data.price === 'string') {
-        const numericMatch = data.price.match(/\d+(\.\d{1,2})?/)
-        if (numericMatch) {
-          priceValue = parseFloat(numericMatch[0])
-        }
-        
-        // If the price doesn't already contain "$" and "+ GST", format it
-        if (!data.price.includes('$') || !data.price.includes('GST')) {
-          formattedPrice = `$${priceValue.toFixed(2)} + GST`
-        } else {
-          formattedPrice = data.price // Keep the original format
-        }
-      } else {
-        priceValue = data.price || 0
+      const numericMatch = data.price.match(/\d+(\.\d{1,2})?/)
+      if (numericMatch) {
+        priceValue = parseFloat(numericMatch[0])
+      }
+      
+      // If the price doesn't already contain "$" and "+ GST", format it
+      if (!data.price.includes('$') || !data.price.includes('GST')) {
         formattedPrice = `$${priceValue.toFixed(2)} + GST`
+      } else {
+        formattedPrice = data.price // Keep the original format
       }
       
       // Calculate GST (10% GST rate)
       const GST_RATE = 0.10
       const gstAmount = Math.round(priceValue * GST_RATE * 100) / 100 // Round to 2 decimal places
       const priceWithGST = Math.round((priceValue + gstAmount) * 100) / 100
-      const formattedPriceWithGST = `$${priceWithGST.toFixed(2)}`
       
       // Process the data to match database requirements
       const processedData = {
-        ...data,
+        name: data.name || '',
+        brand: data.brand || '',
+        description: data.description || '',
+        model: data.model || '',
         price: formattedPrice, // Store price in "$300 + GST" format
         price_text: formattedPrice, // Store price with $ sign and GST text
         price_numeric: priceValue, // Store numeric value
@@ -175,6 +177,8 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         price_with_gst: priceWithGST, // Store price including GST
         cooling_capacity: data.cooling_capacity || '',
         heating_capacity: data.heating_capacity || '',
+        has_wifi: data.has_wifi || false,
+        series: data.series || '',
         image: data.image || '',
         product_images: Array.isArray(data.product_images) && data.product_images.length > 0 ? data.product_images : [],
         promotions: data.promotions && data.promotions.length > 0 ? data.promotions : null
@@ -188,7 +192,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           brand: processedData.brand || '',
           description: processedData.description || '',
           model: processedData.model || '',
-          price: formattedPrice, // Send formatted price as "$300 + GST"
+          price: formattedPrice as string, // Send formatted price as "$300 + GST"
           price_numeric: processedData.price_numeric,
           gst_amount: processedData.gst_amount,
           price_with_gst: processedData.price_with_gst,
@@ -207,7 +211,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           brand: processedData.brand || '',
           description: processedData.description || '',
           model: processedData.model || '',
-          price: formattedPrice, // Send formatted price as "$300 + GST"
+          price: formattedPrice as string, // Send formatted price as "$300 + GST"
           price_numeric: processedData.price_numeric,
           gst_amount: processedData.gst_amount,
           price_with_gst: processedData.price_with_gst,
@@ -343,7 +347,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                   placeholder="Enter product name"
                 />
                 {errors.name && (
-                  <p className="mt-1 text-sm text-red-600">{errors.name.message}</p>
+                  <p className="mt-1 text-sm text-red-600">{errors.name.message as string}</p>
                 )}
               </div>
 
@@ -385,7 +389,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 ))}
               </select>
               {errors.brand && (
-                <p className="mt-1 text-sm text-red-600">{errors.brand.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.brand.message as string}</p>
               )}
             </div>
 
@@ -403,7 +407,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 placeholder="Enter model number"
               />
               {errors.model && (
-                <p className="mt-1 text-sm text-red-600">{errors.model.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.model.message as string}</p>
               )}
             </div>
 
@@ -444,7 +448,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 </div>
               </div>
               {errors.price && (
-                <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.price.message as string}</p>
               )}
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                 Enter any price format (e.g., 300, $300, 300.00, $300 + GST, etc.)
@@ -564,7 +568,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 placeholder="Enter product description"
               />
               {errors.description && (
-                <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
+                <p className="mt-1 text-sm text-red-600">{errors.description.message as string}</p>
               )}
             </div>
 

@@ -27,7 +27,7 @@ export interface CreateProductData {
   brand: string
   description: string
   model: string
-  price: number
+  price: string | number
   price_numeric?: number
   price_text?: string
   gst_amount?: number
