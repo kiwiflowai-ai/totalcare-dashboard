@@ -6,6 +6,9 @@ export interface Product {
   model: string
   price: string
   price_numeric?: number
+  price_text?: string
+  gst_amount?: number
+  price_with_gst?: number
   cooling_capacity?: string
   heating_capacity?: string
   has_wifi?: boolean
@@ -26,6 +29,9 @@ export interface CreateProductData {
   model: string
   price: number
   price_numeric?: number
+  price_text?: string
+  gst_amount?: number
+  price_with_gst?: number
   cooling_capacity?: string
   heating_capacity?: string
   has_wifi?: boolean

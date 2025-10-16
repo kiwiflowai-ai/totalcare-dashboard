@@ -71,7 +71,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
       brand: '',
       description: '',
       model: '',
-      price: 0,
+      price: '0',
       price_numeric: 0,
       cooling_capacity: '',
       heating_capacity: '',
@@ -100,7 +100,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         brand: product.brand,
         description: product.description,
         model: product.model,
-        price: typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price,
+        price: typeof product.price === 'string' ? product.price.replace(/[^0-9.]/g, '') : product.price?.toString() || '0',
         price_numeric: product.price_numeric || 0,
         cooling_capacity: product.cooling_capacity || '',
         heating_capacity: product.heating_capacity || '',
@@ -118,7 +118,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         brand: '',
         description: '',
         model: '',
-        price: 0,
+        price: '0',
         price_numeric: 0,
         cooling_capacity: '',
         heating_capacity: '',
@@ -137,18 +137,24 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     try {
       setIsSubmitting(true)
       
-      // Ensure price has $ sign
-      const priceValue = data.price || 0
-      let formattedPrice = priceValue.toString();
-      if (!formattedPrice.startsWith('$')) {
-        formattedPrice = `$${formattedPrice}`;
-      }
+      // Calculate GST (10% GST rate)
+      const GST_RATE = 0.10
+      const priceValue = typeof data.price === 'string' ? parseFloat(data.price) || 0 : data.price || 0
+      const gstAmount = Math.round(priceValue * GST_RATE * 100) / 100 // Round to 2 decimal places
+      const priceWithGST = Math.round((priceValue + gstAmount) * 100) / 100
+      
+      // Format price as "$300 + GST" format
+      const formattedPrice = `$${priceValue.toFixed(2)} + GST`
+      const formattedPriceWithGST = `$${priceWithGST.toFixed(2)}`
       
       // Process the data to match database requirements
       const processedData = {
         ...data,
-        price: formattedPrice, // Ensure $ sign is included
-        price_numeric: Math.round(data.price_numeric || priceValue), // Convert to integer
+        price: formattedPrice, // Store price in "$300 + GST" format
+        price_text: formattedPrice, // Store price with $ sign and GST text
+        price_numeric: priceValue, // Store numeric value
+        gst_amount: gstAmount, // Store GST amount
+        price_with_gst: priceWithGST, // Store price including GST
         cooling_capacity: data.cooling_capacity || '',
         heating_capacity: data.heating_capacity || '',
         image: data.image || '',
@@ -164,8 +170,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           brand: processedData.brand || '',
           description: processedData.description || '',
           model: processedData.model || '',
-          price: priceValue,
+          price: formattedPrice, // Send formatted price as "$300 + GST"
           price_numeric: processedData.price_numeric,
+          gst_amount: processedData.gst_amount,
+          price_with_gst: processedData.price_with_gst,
           cooling_capacity: processedData.cooling_capacity,
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
@@ -181,8 +189,10 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           brand: processedData.brand || '',
           description: processedData.description || '',
           model: processedData.model || '',
-          price: priceValue,
+          price: formattedPrice, // Send formatted price as "$300 + GST"
           price_numeric: processedData.price_numeric,
+          gst_amount: processedData.gst_amount,
+          price_with_gst: processedData.price_with_gst,
           cooling_capacity: processedData.cooling_capacity,
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
@@ -394,24 +404,57 @@ export const ProductForm: React.FC<ProductFormProps> = ({
             {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                Price ($) *
+                Price *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                {...register('price', { 
-                  required: 'Price is required',
-                  min: { value: 0, message: 'Price must be positive' }
-                })}
-                className={clsx(
-                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none',
-                  errors.price ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
-                )}
-                placeholder="0.00"
-              />
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">$</span>
+                </div>
+                <input
+                  type="text"
+                  {...register('price', { 
+                    required: 'Price is required',
+                    pattern: {
+                      value: /^\d+(\.\d{1,2})?$/,
+                      message: 'Please enter a valid price (e.g., 300 or 300.50)'
+                    }
+                  })}
+                  onChange={(e) => {
+                    // Only allow numbers and decimal point
+                    let value = e.target.value.replace(/[^0-9.]/g, '')
+                    
+                    // Prevent multiple decimal points
+                    const parts = value.split('.')
+                    if (parts.length > 2) {
+                      value = parts[0] + '.' + parts.slice(1).join('')
+                    }
+                    
+                    // Limit to 2 decimal places
+                    if (parts[1] && parts[1].length > 2) {
+                      value = parts[0] + '.' + parts[1].substring(0, 2)
+                    }
+                    
+                    e.target.value = value
+                    
+                    // Update the form value
+                    setValue('price', value)
+                  }}
+                  className={clsx(
+                    'w-full pl-8 pr-20 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
+                    errors.price ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
+                  )}
+                  placeholder="300.00"
+                />
+                <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">+ GST</span>
+                </div>
+              </div>
               {errors.price && (
                 <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
               )}
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Enter the base price - GST (10%) will be automatically calculated
+              </p>
             </div>
 
             {/* Heating Capacity */}

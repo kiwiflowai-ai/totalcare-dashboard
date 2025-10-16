@@ -10,8 +10,10 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
   const totalProducts = products.length
   const wifiProducts = products.filter(p => p.has_wifi).length
   const totalValue = products.reduce((sum: number, product) => {
-    const price = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price
-    return sum + price
+    const basePrice = typeof product.price === 'string' ? parseFloat(product.price.replace('$', '')) || 0 : product.price
+    const gstAmount = product.gst_amount || Math.round(basePrice * 0.10 * 100) / 100
+    const totalPrice = product.price_with_gst || Math.round((basePrice + gstAmount) * 100) / 100
+    return sum + totalPrice
   }, 0)
   const avgPrice = totalProducts > 0 ? totalValue / totalProducts : 0
   const brands = [...new Set(products.map(p => p.brand))].length
@@ -41,7 +43,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
       changeLabel: 'Brands'
     },
     {
-      title: 'Total Value',
+      title: 'Total Value (Inc. GST)',
       value: new Intl.NumberFormat('en-US', {
         style: 'currency',
         currency: 'USD',
@@ -51,7 +53,7 @@ export const StatsCards: React.FC<StatsCardsProps> = ({ products }) => {
       icon: DollarSign,
       color: 'text-green-600 bg-green-100 dark:text-green-400 dark:bg-green-900',
       change: Math.round(avgPrice),
-      changeLabel: 'Avg Price'
+      changeLabel: 'Avg Price (Inc. GST)'
     },
     {
       title: 'WiFi Products',

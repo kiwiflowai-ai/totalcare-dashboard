@@ -37,11 +37,28 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   }
 
   const formatPrice = (price: string | number) => {
+    // If price already contains "+ GST", return as is
+    if (typeof price === 'string' && price.includes('+ GST')) {
+      return price
+    }
+    
     const numericPrice = typeof price === 'string' ? parseFloat(price.replace(/[^0-9.]/g, '')) : price
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD'
     }).format(numericPrice)
+  }
+
+  const formatPriceWithGST = (product: Product) => {
+    const basePrice = typeof product.price === 'string' ? parseFloat(product.price.replace(/[^0-9.]/g, '')) : product.price
+    const gstAmount = product.gst_amount || Math.round(basePrice * 0.10 * 100) / 100
+    const totalPrice = product.price_with_gst || Math.round((basePrice + gstAmount) * 100) / 100
+    
+    return {
+      base: basePrice,
+      gst: gstAmount,
+      total: totalPrice
+    }
   }
 
   const formatDate = (dateString: string) => {
@@ -193,17 +210,21 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                     </div>
                   )}
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-4">
                     <div>
                       <label className="text-sm font-medium text-gray-500">Price</label>
-                      <p className="text-lg font-semibold text-green-600">{formatPrice(product.price)}</p>
+                      <p className="text-lg font-semibold text-blue-600">{formatPrice(product.price)}</p>
                     </div>
-                    {product.price_numeric && (
-                      <div>
-                        <label className="text-sm font-medium text-gray-500">Price (Numeric)</label>
-                        <p className="text-sm text-gray-900">${product.price_numeric}</p>
-                      </div>
-                    )}
+                    
+                    {(() => {
+                      const priceInfo = formatPriceWithGST(product)
+                      return (
+                        <div>
+                          <label className="text-sm font-medium text-gray-500">Total Price (Inc. GST)</label>
+                          <p className="text-xl font-bold text-green-600 dark:text-green-400">{formatPrice(priceInfo.total)}</p>
+                        </div>
+                      )
+                    })()}
                   </div>
                 </div>
               </div>
