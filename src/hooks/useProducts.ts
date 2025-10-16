@@ -43,9 +43,22 @@ export const useProducts = () => {
         return `${brand.toLowerCase()}-${name.toLowerCase().replace(/[^a-z0-9]/g, '-')}-${model.toLowerCase()}`.replace(/-+/g, '-').replace(/^-|-$/g, '')
       }
 
+      // Only include fields that exist in the database
       const productWithId = {
-        ...productData,
-        id: generateId(productData.name, productData.brand, productData.model)
+        id: generateId(productData.name, productData.brand, productData.model),
+        name: productData.name,
+        brand: productData.brand,
+        description: productData.description,
+        model: productData.model,
+        price: productData.price,
+        // Only include these if they exist in the database
+        ...(productData.cooling_capacity && { cooling_capacity: productData.cooling_capacity }),
+        ...(productData.heating_capacity && { heating_capacity: productData.heating_capacity }),
+        ...(productData.has_wifi !== undefined && { has_wifi: productData.has_wifi }),
+        ...(productData.series && { series: productData.series }),
+        ...(productData.image && { image: productData.image }),
+        ...(productData.product_images && { product_images: productData.product_images }),
+        ...(productData.promotions && { promotions: productData.promotions })
       }
 
 
@@ -93,10 +106,26 @@ export const useProducts = () => {
     try {
       const { id, ...updateData } = productData
       
+      // Only include fields that exist in the database
+      const safeUpdateData = {
+        name: updateData.name,
+        brand: updateData.brand,
+        description: updateData.description,
+        model: updateData.model,
+        price: updateData.price,
+        // Only include these if they exist in the database
+        ...(updateData.cooling_capacity && { cooling_capacity: updateData.cooling_capacity }),
+        ...(updateData.heating_capacity && { heating_capacity: updateData.heating_capacity }),
+        ...(updateData.has_wifi !== undefined && { has_wifi: updateData.has_wifi }),
+        ...(updateData.series && { series: updateData.series }),
+        ...(updateData.image && { image: updateData.image }),
+        ...(updateData.product_images && { product_images: updateData.product_images }),
+        ...(updateData.promotions && { promotions: updateData.promotions })
+      }
       
       const { data, error } = await supabase
         .from('products')
-        .update(updateData)
+        .update(safeUpdateData)
         .eq('id', id)
         .select()
 

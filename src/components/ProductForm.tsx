@@ -159,22 +159,15 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         formattedPrice = data.price // Keep the original format
       }
       
-      // Calculate GST (10% GST rate)
-      const GST_RATE = 0.10
-      const gstAmount = Math.round(priceValue * GST_RATE * 100) / 100 // Round to 2 decimal places
-      const priceWithGST = Math.round((priceValue + gstAmount) * 100) / 100
+      // Note: GST calculation removed since those columns don't exist in database yet
       
-      // Process the data to match database requirements
+      // Process the data to match database requirements (only include existing fields)
       const processedData = {
         name: data.name || '',
         brand: data.brand || '',
         description: data.description || '',
         model: data.model || '',
         price: formattedPrice, // Store price in "$300 + GST" format
-        price_text: formattedPrice, // Store price with $ sign and GST text
-        price_numeric: priceValue, // Store numeric value
-        gst_amount: gstAmount, // Store GST amount
-        price_with_gst: priceWithGST, // Store price including GST
         cooling_capacity: data.cooling_capacity || '',
         heating_capacity: data.heating_capacity || '',
         has_wifi: data.has_wifi || false,
@@ -193,9 +186,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           description: processedData.description || '',
           model: processedData.model || '',
           price: formattedPrice as string, // Send formatted price as "$300 + GST"
-          price_numeric: processedData.price_numeric,
-          gst_amount: processedData.gst_amount,
-          price_with_gst: processedData.price_with_gst,
           cooling_capacity: processedData.cooling_capacity,
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
@@ -212,9 +202,6 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           description: processedData.description || '',
           model: processedData.model || '',
           price: formattedPrice as string, // Send formatted price as "$300 + GST"
-          price_numeric: processedData.price_numeric,
-          gst_amount: processedData.gst_amount,
-          price_with_gst: processedData.price_with_gst,
           cooling_capacity: processedData.cooling_capacity,
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
