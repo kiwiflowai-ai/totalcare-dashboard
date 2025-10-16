@@ -100,7 +100,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         brand: product.brand,
         description: product.description,
         model: product.model,
-        price: typeof product.price === 'string' ? product.price.replace(/[^0-9.]/g, '') : product.price?.toString() || '0',
+        price: product.price?.toString() || '0',
         price_numeric: product.price_numeric || 0,
         cooling_capacity: product.cooling_capacity || '',
         heating_capacity: product.heating_capacity || '',
@@ -137,14 +137,32 @@ export const ProductForm: React.FC<ProductFormProps> = ({
     try {
       setIsSubmitting(true)
       
+      // Handle any price format - extract numeric value if possible
+      let priceValue = 0
+      let formattedPrice = data.price || ''
+      
+      // Try to extract numeric value from the price string
+      if (typeof data.price === 'string') {
+        const numericMatch = data.price.match(/\d+(\.\d{1,2})?/)
+        if (numericMatch) {
+          priceValue = parseFloat(numericMatch[0])
+        }
+        
+        // If the price doesn't already contain "$" and "+ GST", format it
+        if (!data.price.includes('$') || !data.price.includes('GST')) {
+          formattedPrice = `$${priceValue.toFixed(2)} + GST`
+        } else {
+          formattedPrice = data.price // Keep the original format
+        }
+      } else {
+        priceValue = data.price || 0
+        formattedPrice = `$${priceValue.toFixed(2)} + GST`
+      }
+      
       // Calculate GST (10% GST rate)
       const GST_RATE = 0.10
-      const priceValue = typeof data.price === 'string' ? parseFloat(data.price) || 0 : data.price || 0
       const gstAmount = Math.round(priceValue * GST_RATE * 100) / 100 // Round to 2 decimal places
       const priceWithGST = Math.round((priceValue + gstAmount) * 100) / 100
-      
-      // Format price as "$300 + GST" format
-      const formattedPrice = `$${priceValue.toFixed(2)} + GST`
       const formattedPriceWithGST = `$${priceWithGST.toFixed(2)}`
       
       // Process the data to match database requirements
@@ -413,37 +431,13 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <input
                   type="text"
                   {...register('price', { 
-                    required: 'Price is required',
-                    pattern: {
-                      value: /^\d+(\.\d{1,2})?$/,
-                      message: 'Please enter a valid price (e.g., 300 or 300.50)'
-                    }
+                    required: 'Price is required'
                   })}
-                  onChange={(e) => {
-                    // Only allow numbers and decimal point
-                    let value = e.target.value.replace(/[^0-9.]/g, '')
-                    
-                    // Prevent multiple decimal points
-                    const parts = value.split('.')
-                    if (parts.length > 2) {
-                      value = parts[0] + '.' + parts.slice(1).join('')
-                    }
-                    
-                    // Limit to 2 decimal places
-                    if (parts[1] && parts[1].length > 2) {
-                      value = parts[0] + '.' + parts[1].substring(0, 2)
-                    }
-                    
-                    e.target.value = value
-                    
-                    // Update the form value
-                    setValue('price', value)
-                  }}
                   className={clsx(
                     'w-full pl-8 pr-20 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
                     errors.price ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                   )}
-                  placeholder="300.00"
+                  placeholder="300.00 + GST"
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <span className="text-gray-500 dark:text-gray-400 text-sm">+ GST</span>
@@ -453,7 +447,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
                 <p className="mt-1 text-sm text-red-600">{errors.price.message}</p>
               )}
               <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                Enter the base price - GST (10%) will be automatically calculated
+                Enter any price format (e.g., 300, $300, 300.00, $300 + GST, etc.)
               </p>
             </div>
 
