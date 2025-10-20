@@ -14,7 +14,6 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
-        .order('created_at', { ascending: true })
 
       if (error) throw error
       
