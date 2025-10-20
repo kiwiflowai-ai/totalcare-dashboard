@@ -14,6 +14,7 @@ export const useProducts = () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .order('id', { ascending: true })
 
       if (error) throw error
       
