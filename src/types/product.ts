@@ -13,6 +13,7 @@ export interface Product {
   heating_capacity?: string
   has_wifi?: boolean
   series?: string
+  warranty?: string
   image?: string
   product_images?: string[] | string | null
   promotions?: string[] | null
@@ -36,6 +37,7 @@ export interface CreateProductData {
   heating_capacity?: string
   has_wifi?: boolean
   series?: string
+  warranty?: string
   image?: string
   product_images?: string[] | string | null
   promotions?: string[] | null

@@ -56,6 +56,7 @@ export const useProducts = () => {
         ...(productData.heating_capacity && { heating_capacity: productData.heating_capacity }),
         ...(productData.has_wifi !== undefined && { has_wifi: productData.has_wifi }),
         ...(productData.series && { series: productData.series }),
+        ...(productData.warranty && { warranty: productData.warranty }),
         ...(productData.image && { image: productData.image }),
         ...(productData.product_images && { product_images: productData.product_images }),
         ...(productData.promotions && { promotions: productData.promotions })
@@ -118,6 +119,7 @@ export const useProducts = () => {
         ...(updateData.heating_capacity && { heating_capacity: updateData.heating_capacity }),
         ...(updateData.has_wifi !== undefined && { has_wifi: updateData.has_wifi }),
         ...(updateData.series && { series: updateData.series }),
+        ...(updateData.warranty && { warranty: updateData.warranty }),
         ...(updateData.image && { image: updateData.image }),
         ...(updateData.product_images && { product_images: updateData.product_images }),
         ...(updateData.promotions && { promotions: updateData.promotions })
