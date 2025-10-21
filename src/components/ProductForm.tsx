@@ -111,6 +111,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         heating_capacity: product.heating_capacity || '',
         has_wifi: product.has_wifi || false,
         series: product.series || '',
+        warranty: product.warranty || '',
         image: product.image || '',
         product_images: product.product_images || [],
         promotions: product.promotions || []
@@ -129,6 +130,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         heating_capacity: '',
         has_wifi: false,
         series: '',
+        warranty: '',
         image: '',
         product_images: [],
         promotions: null
@@ -172,6 +174,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
         heating_capacity: data.heating_capacity || '',
         has_wifi: data.has_wifi || false,
         series: data.series || '',
+        warranty: data.warranty || '',
         image: data.image || '',
         product_images: Array.isArray(data.product_images) && data.product_images.length > 0 ? data.product_images : [],
         promotions: data.promotions && data.promotions.length > 0 ? data.promotions : null
@@ -190,6 +193,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
           series: processedData.series,
+          warranty: processedData.warranty,
           image: processedData.image,
           product_images: processedData.product_images,
           promotions: processedData.promotions && processedData.promotions.length > 0 ? processedData.promotions : null
@@ -206,6 +210,7 @@ export const ProductForm: React.FC<ProductFormProps> = ({
           heating_capacity: processedData.heating_capacity,
           has_wifi: processedData.has_wifi,
           series: processedData.series,
+          warranty: processedData.warranty,
           image: processedData.image,
           product_images: processedData.product_images,
           promotions: processedData.promotions && processedData.promotions.length > 0 ? processedData.promotions : null
