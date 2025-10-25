@@ -353,17 +353,20 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Series
               </label>
-              <select
+              <input
                 {...register('series')}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-              >
-                <option value="">Select series</option>
+                list="series-list"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400"
+                placeholder="Select or type custom series"
+              />
+              <datalist id="series-list">
                 {series.map((seriesName) => (
-                  <option key={seriesName} value={seriesName}>
-                    {seriesName}
-                  </option>
+                  <option key={seriesName} value={seriesName} />
                 ))}
-              </select>
+              </datalist>
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Select from dropdown or type a custom series
+              </p>
             </div>
 
             {/* Brand */}
@@ -371,23 +374,26 @@ export const ProductForm: React.FC<ProductFormProps> = ({
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Brand *
               </label>
-              <select
+              <input
                 {...register('brand', { required: 'Brand is required' })}
+                list="brand-list"
                 className={clsx(
-                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white',
+                  'w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400',
                   errors.brand ? 'border-red-500' : 'border-gray-300 dark:border-gray-600'
                 )}
-              >
-                <option value="">Select brand</option>
+                placeholder="Select or type custom brand"
+              />
+              <datalist id="brand-list">
                 {brands.map((brand) => (
-                  <option key={brand} value={brand}>
-                    {brand}
-                  </option>
+                  <option key={brand} value={brand} />
                 ))}
-              </select>
+              </datalist>
               {errors.brand && (
                 <p className="mt-1 text-sm text-red-600">{errors.brand.message as string}</p>
               )}
+              <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                Select from dropdown or type a custom brand
+              </p>
             </div>
 
             {/* Model */}
