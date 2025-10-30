@@ -137,8 +137,8 @@ export const ProductTable: React.FC<ProductTableProps> = ({
 
   const formatPriceWithGST = (product: Product) => {
     const basePrice = typeof product.price === 'string' ? parseFloat(product.price.replace(/[^0-9.]/g, '')) : product.price
-    const gstAmount = product.gst_amount || Math.round(basePrice * 0.10 * 100) / 100
-    const totalPrice = product.price_with_gst || Math.round((basePrice + gstAmount) * 100) / 100
+    const gstAmount = Math.round(basePrice * 0.15 * 100) / 100  // 15% GST
+    const totalPrice = Math.round((basePrice + gstAmount) * 100) / 100
     
     return {
       base: basePrice,

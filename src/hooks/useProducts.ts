@@ -11,15 +11,33 @@ export const useProducts = () => {
   const fetchProducts = async () => {
     try {
       setLoading(true)
-      const { data, error } = await supabase
-        .from('products')
-        .select('*')
-        .order('id', { ascending: true })
-
-      if (error) throw error
+      setError(null)
+      
+      // Fetch products in batches to avoid timeout
+      const batchSize = 50
+      let allProducts: any[] = []
+      let from = 0
+      let hasMore = true
+      
+      while (hasMore) {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .range(from, from + batchSize - 1)
+        
+        if (error) throw error
+        
+        if (data && data.length > 0) {
+          allProducts = [...allProducts, ...data]
+          from += batchSize
+          hasMore = data.length === batchSize
+        } else {
+          hasMore = false
+        }
+      }
       
       // Parse product_images if they're stored as JSON strings
-      const processedData = (data || []).map(product => ({
+      const processedData = allProducts.map(product => ({
         ...product,
         product_images: typeof product.product_images === 'string' 
           ? JSON.parse(product.product_images) 
@@ -31,6 +49,7 @@ export const useProducts = () => {
       const errorMessage = err instanceof Error ? err.message : 'Failed to fetch products'
       setError(errorMessage)
       toast.error(errorMessage)
+      console.error('Fetch products error:', err)
     } finally {
       setLoading(false)
     }
