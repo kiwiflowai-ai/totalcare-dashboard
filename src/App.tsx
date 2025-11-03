@@ -1,16 +1,19 @@
 import { useState } from 'react'
 import { Toaster } from 'react-hot-toast'
-import { Plus, Settings, BarChart3 } from 'lucide-react'
+import { Plus, Settings, BarChart3, LogOut } from 'lucide-react'
 import { useProducts } from './hooks/useProducts'
+import { useAuth } from './hooks/useAuth'
 import { Product, CreateProductData, UpdateProductData } from './types/product'
 import { ProductForm } from './components/ProductForm'
 import { ProductTable } from './components/ProductTable'
 import { DeleteConfirmModal } from './components/DeleteConfirmModal'
 import { StatsCards } from './components/StatsCards'
+import { Login } from './components/Login'
 import { ThemeProvider } from './contexts/ThemeContext'
 import { ThemeToggle } from './components/ThemeToggle'
 
 function App() {
+  const { isAuthenticated, isLoading, login, logout } = useAuth()
   const {
     products,
     loading,
@@ -80,6 +83,29 @@ function App() {
     setSelectedProduct(null)
   }
 
+  // Show login page if not authenticated
+  if (isLoading) {
+    return (
+      <ThemeProvider>
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
+            <p className="mt-4 text-gray-600 dark:text-gray-400">Loading...</p>
+          </div>
+        </div>
+      </ThemeProvider>
+    )
+  }
+
+  if (!isAuthenticated) {
+    return (
+      <ThemeProvider>
+        <Login onLogin={login} />
+        <Toaster position="top-right" />
+      </ThemeProvider>
+    )
+  }
+
   return (
     <ThemeProvider>
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
@@ -104,6 +130,13 @@ function App() {
                   <Settings className="w-5 h-5" />
                 </button>
                 <ThemeToggle />
+                <button
+                  onClick={logout}
+                  className="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                  title="Logout"
+                >
+                  <LogOut className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
